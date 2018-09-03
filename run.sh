@@ -30,10 +30,6 @@ btrfs sub cr $subvol_root
 mkdir -p $subvol_root/media/boot
 mkdir -p $subvol_root/boot
 
-# Create boot mount
-mount -o rw,loop ${loopback_device}p1 $subvol_root/boot
-umount -R $backup_mount
-
 # Rsync
 rsync -axAX /media/boot/ $subvol_root/media/boot/
 rsync -axAX /boot/ $subvol_root/boot
