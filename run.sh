@@ -35,8 +35,8 @@ rsync -axAX /media/boot/ $subvol_root/media/boot/
 rsync -axAX /boot/ $subvol_root/boot
 rsync -axAX / --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $subvol_root/
 
-# u-boot mainline
-u-boot/sd_fuse/sd_fusing.sh $loopback_device
+# )u-boot mainline
+( cd sd_fuse && ./sd_fusing.sh $loopback_device )
 
 # clean-up
 #umount -R 
