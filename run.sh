@@ -31,7 +31,7 @@ function u-boot_image {
 }
 
 function clean-up {
-	umount -R 
+	umount -R $backup_mount
 	losetup -d $loopback_device
 }
 
