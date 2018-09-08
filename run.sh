@@ -1,8 +1,5 @@
 #!/bin/bash
 
-## Make a truncated sparse disk image
-#truncate -s 8G backup.img
-
 backup_image_location="/mnt/lun0/temp"
 backup_image_file="backup.img"
 backup_mount="/media/backup"
@@ -47,7 +44,7 @@ losetup -d $loopback_device
 losetup -P $loopback_device $backup_image_location/$backup_image_file
 format_image
 
-## Mount the images
+# Mount the images
 mkdir $backup_mount
 mount -o rw,loop,compress=zstd,noatime,ssd ${loopback_device}p2 $backup_mount
 btrfs sub cr $subvol_root
@@ -58,5 +55,5 @@ backup_machine
 u-boot_image
 clean-up
 
-## Compress the output
+# Compress the image
 zstd $image
