@@ -3,27 +3,26 @@
 backup_image_location="/mnt/lun0/temp"
 backup_image_file="backup.img"
 backup_mount="/media/backup"
-subvol_root="/media/backup/subvol_root"
 loopback_device="/dev/loop0"
 
 function partition_image {
 	# Partition the image file
 	parted $backup_image_location/$backup_image_file mklabel msdos
 	parted $backup_image_location/$backup_image_file mkpart primary -a optimal 2048s 128M
-	parted $backup_image_location/$backup_image_file mkpart primary -a optimal btrfs 128M 5G
+	parted $backup_image_location/$backup_image_file mkpart primary -a optimal ext4 128M 5G
 }
 
 function format_image {
 	# Format the partitions
 	mkfs.vfat -n boot ${loopback_device}p1
-	mkfs.btrfs -L rootfs ${loopback_device}p2
+	mkfs.ext4 -L rootfs ${loopback_device}p2
 }
 
 function backup_machine {
 	# Rsync
-	rsync -axAX /media/boot/ $subvol_root/media/boot/
-	rsync -axAX /boot/ $subvol_root/boot
-	rsync -axAX / --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $subvol_root/
+	rsync -axAX /media/boot/ $backup_mount/media/boot/
+	rsync -axAX /boot/ $backup_mount/boot
+	rsync -axAX / --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $backup_mount/
 }
 
 function u-boot_image {
@@ -46,10 +45,9 @@ format_image
 
 # Mount the images
 mkdir $backup_mount
-mount -o rw,loop,compress=zstd,noatime,ssd ${loopback_device}p2 $backup_mount
-btrfs sub cr $subvol_root
-mkdir -p $subvol_root/media/boot
-mkdir -p $subvol_root/boot
+mount -o rw,loop,noatime,discard ${loopback_device}p2 $backup_mount
+mkdir -p $backup_mount/media/boot
+mkdir -p $backup_mount/boot
 
 backup_machine
 u-boot_image
